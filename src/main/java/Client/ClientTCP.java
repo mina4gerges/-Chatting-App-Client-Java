@@ -1,3 +1,4 @@
+package Client;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -6,8 +7,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
+import javax.swing.Box;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -35,6 +39,10 @@ public class ClientTCP {
     JTextField textField = new JTextField(50);
     JTextArea messageArea = new JTextArea(16, 50);
 
+    static String machine;
+    static String surnom = null;
+    static String port = null;
+
     /**
      * Constructs the client by laying out the GUI and registering a listener
      * with the textfield so that pressing Return in the listener sends the
@@ -61,19 +69,42 @@ public class ClientTCP {
     }
 
     private String getName() {
-        return JOptionPane.showInputDialog(
-                frame,
-                "Choose a screen name:",
-                "Screen name selection",
-                JOptionPane.PLAIN_MESSAGE
+//        return JOptionPane.showInputDialog(
+//                frame,
+//                "Choose a screen name:",//text message
+//                "Screen name selection",//title
+//                JOptionPane.INFORMATION_MESSAGE
+//        );
+        JTextField surnomField = new JTextField(5);
+        JTextField machineField = new JTextField(5);
+        JTextField portField = new JTextField(5);
+
+        Object[] inputFields = {
+            "Surnom :", surnomField,
+            "Machine :", machineField,
+            "Port :", portField
+        };
+        int option = JOptionPane.showConfirmDialog(
+                frame, //parent component
+                inputFields,//panel
+                "Please Enter Your Information",//title
+                JOptionPane.OK_CANCEL_OPTION
         );
+        if (option == JOptionPane.OK_OPTION) {
+            surnom = surnomField.getText();
+            machine = machineField.getText();
+            port = portField.getText();
+        }
+//        String finalString = "_connect <" + surnom + "> <" + machine + "> <" + port + ">";
+        String finalString = surnom + "~" + machine + "~" + port;
+        return finalString;
     }
 
     private void run() throws IOException {
         try {
             Socket socket = new Socket(serverAddress, 59001);
             in = new Scanner(socket.getInputStream());
-            out = new PrintWriter(socket.getOutputStream(), true);
+            out = new PrintWriter(socket.getOutputStream(), true);//true for auto flush
 
             while (in.hasNextLine()) {
                 String line = in.nextLine();
@@ -99,6 +130,7 @@ public class ClientTCP {
 //        }
 //        ChatClient client = new ChatClient(args[0]);
         ClientTCP client = new ClientTCP("127.0.0.1");
+//        ClientTCP client = new ClientTCP(machine);
         client.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         client.frame.setVisible(true);
         client.run();
