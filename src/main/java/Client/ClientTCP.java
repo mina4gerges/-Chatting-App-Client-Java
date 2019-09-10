@@ -5,13 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.PrintWriter;
+import static java.lang.System.exit;
 import java.net.Socket;
 import java.util.Scanner;
-import javax.swing.Box;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -32,16 +30,15 @@ import javax.swing.JTextField;
  */
 public class ClientTCP {
 
-    String serverAddress;
     Scanner in;
     PrintWriter out;
     JFrame frame = new JFrame("Chatter");
     JTextField textField = new JTextField(50);
     JTextArea messageArea = new JTextArea(16, 50);
 
-    static String machine;
-    static String surnom = null;
-    static String port = null;
+    String machine;
+    String surnom;
+    String port;
 
     /**
      * Constructs the client by laying out the GUI and registering a listener
@@ -50,14 +47,15 @@ public class ClientTCP {
      * initially NOT editable, and only becomes editable AFTER the client
      * receives the NAMEACCEPTED message from the server.
      */
-    public ClientTCP(String serverAddress) {
-        this.serverAddress = serverAddress;
+    public ClientTCP() {
 
         textField.setEditable(false);
         messageArea.setEditable(false);
         frame.getContentPane().add(textField, BorderLayout.SOUTH);
         frame.getContentPane().add(new JScrollPane(messageArea), BorderLayout.CENTER);
         frame.pack();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
 
         // Send on enter then clear to prepare for next message
         textField.addActionListener(new ActionListener() {
@@ -66,55 +64,60 @@ public class ClientTCP {
                 textField.setText("");
             }
         });
+        getUserInfo();//open panel for user to insert name, machine IP and port
     }
 
-    private String getName() {
-//        return JOptionPane.showInputDialog(
-//                frame,
-//                "Choose a screen name:",//text message
-//                "Screen name selection",//title
-//                JOptionPane.INFORMATION_MESSAGE
-//        );
+    private void getUserInfo() {
+
         JTextField surnomField = new JTextField(5);
         JTextField machineField = new JTextField(5);
         JTextField portField = new JTextField(5);
 
-        Object[] inputFields = {
+        Object[] inputFields = { // Fields to display (user insert values)
             "Surnom :", surnomField,
             "Machine :", machineField,
             "Port :", portField
         };
-        int option = JOptionPane.showConfirmDialog(
+
+        int option = JOptionPane.showConfirmDialog(//open confirm modal
                 frame, //parent component
                 inputFields,//panel
                 "Please Enter Your Information",//title
                 JOptionPane.OK_CANCEL_OPTION
         );
-        if (option == JOptionPane.OK_OPTION) {
-            surnom = surnomField.getText();
-            machine = machineField.getText();
-            port = portField.getText();
+
+        if (option == JOptionPane.OK_OPTION) {//if user clicks on OK
+            this.surnom = surnomField.getText();//get name
+            this.machine = machineField.getText();//get machine
+            this.port = portField.getText();//get port
+            try {
+                run();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            exit(0);
         }
-//        String finalString = "_connect <" + surnom + "> <" + machine + "> <" + port + ">";
-        String finalString = surnom + "~" + machine + "~" + port;
-        return finalString;
     }
 
     private void run() throws IOException {
         try {
-            Socket socket = new Socket(serverAddress, 59001);
+            //port: 59001
+            Socket socket = new Socket(machine, Integer.parseInt(port));
             in = new Scanner(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);//true for auto flush
 
-            while (in.hasNextLine()) {
+            while (in.hasNextLine()) {//waiting for users input
                 String line = in.nextLine();
-                if (line.startsWith("SUBMITNAME")) {
-                    out.println(getName());
-                } else if (line.startsWith("NAMEACCEPTED")) {
-                    this.frame.setTitle("Chatter - " + line.substring(13));
+                if (line.startsWith("SUBMITNAME")) {//submating
+                    String finalString = this.surnom + "~" + this.machine + "~" + this.port;
+                    // String finalString = "_connect <" + surnom + "> <" + machine + "> <" + port + ">";
+                    out.println(finalString);
+                } else if (line.startsWith("NAMEACCEPTED")) {//change title of the panel with the user name
+                    this.frame.setTitle("Chatter - " + line.substring(13)); //13 bcz length of NAMEACCEPTED
                     textField.setEditable(true);
-                } else if (line.startsWith("MESSAGE")) {
-                    messageArea.append(line.substring(8) + "\n");
+                } else if (line.startsWith("MESSAGE")) {//add user msg to the panel
+                    messageArea.append(line.substring(8) + "\n");//8 bcz length of MESSAGE
                 }
             }
         } finally {
@@ -124,15 +127,6 @@ public class ClientTCP {
     }
 
     public static void main(String[] args) throws Exception {
-//        if (args.length != 1) {
-//            System.err.println("Pass the server IP as the sole command line argument");
-//            return;
-//        }
-//        ChatClient client = new ChatClient(args[0]);
-        ClientTCP client = new ClientTCP("127.0.0.1");
-//        ClientTCP client = new ClientTCP(machine);
-        client.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        client.frame.setVisible(true);
-        client.run();
+        ClientTCP client = new ClientTCP();
     }
 }
