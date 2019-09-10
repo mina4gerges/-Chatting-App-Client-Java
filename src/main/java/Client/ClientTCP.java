@@ -15,18 +15,13 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 /**
- * A simple Swing-based client for the chat server. Graphically it is a frame
- * with a text field for entering messages and a textarea to see the whole
- * dialog.
- *
- * The client follows the following Chat Protocol. When the server sends
- * "SUBMITNAME" the client replies with the desired screen name. The server will
- * keep sending "SUBMITNAME" requests as long as the client submits screen names
- * that are already in use. When the server sends a line beginning with
- * "NAMEACCEPTED" the client is now allowed to start sending the server
- * arbitrary strings to be broadcast to all chatters connected to the server.
- * When the server sends a line beginning with "MESSAGE" then all characters
- * following this string should be displayed in its message area.
+ * When the server sends "SUBMITNAME" the client replies with the desired screen
+ * name. The server will keep sending "SUBMITNAME" requests as long as the
+ * client submits screen names that are already in use. When the server sends a
+ * line beginning with "NAMEACCEPTED" the client is now allowed to start sending
+ * the server arbitrary strings to be broadcast to all chatters connected to the
+ * server. When the server sends a line beginning with "MESSAGE" then all
+ * characters following this string should be displayed in its message area.
  */
 public class ClientTCP {
 
@@ -40,13 +35,6 @@ public class ClientTCP {
     String surnom;
     String port;
 
-    /**
-     * Constructs the client by laying out the GUI and registering a listener
-     * with the textfield so that pressing Return in the listener sends the
-     * textfield contents to the server. Note however that the textfield is
-     * initially NOT editable, and only becomes editable AFTER the client
-     * receives the NAMEACCEPTED message from the server.
-     */
     public ClientTCP() {
 
         textField.setEditable(false);
