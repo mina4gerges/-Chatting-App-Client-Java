@@ -78,12 +78,24 @@ public class ClientTCP {
             this.surnom = surnomField.getText();//get name
             this.machine = machineField.getText();//get machine
             this.port = portField.getText();//get port
-            try {
-                run();
-            } catch (IOException ex) {
-                ex.printStackTrace();
+            if ((this.machine != null || !this.machine.trim().equals("")) && this.machine.toLowerCase().trim().equals("localhost")) { //if user insert localhost instead of 127.0.0.1
+                this.machine = "127.0.0.1";
             }
-        } else {
+            if (this.surnom == null || this.machine == null || this.port == null || this.surnom.trim().equals("") || this.machine.trim().equals("") || this.port.trim().equals("")) {//test if all input are not empty
+                JOptionPane.showMessageDialog(frame,
+                        "One or more field are empty",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                getUserInfo();//when user clicks on "ok" (error msg) --> redisplay panel to enter new information
+            } else {
+                try {
+                    run();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } else {//if user clicks on cancel
             exit(0);
         }
     }
