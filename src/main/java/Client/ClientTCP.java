@@ -82,11 +82,13 @@ public class ClientTCP {
                 this.machine = "127.0.0.1";
             }
             if (this.surnom == null || this.machine == null || this.port == null || this.surnom.trim().equals("") || this.machine.trim().equals("") || this.port.trim().equals("")) {//test if all input are not empty
+
                 JOptionPane.showMessageDialog(frame,
                         "One or more field are empty",
                         "Error",
                         JOptionPane.ERROR_MESSAGE
                 );
+
                 getUserInfo();//when user clicks on "ok" (error msg) --> redisplay panel to enter new information
             } else {
                 try {
