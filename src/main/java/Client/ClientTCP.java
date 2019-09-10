@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package Client;
 
 import java.awt.BorderLayout;
@@ -22,6 +27,8 @@ import javax.swing.JTextField;
  * the server arbitrary strings to be broadcast to all chatters connected to the
  * server. When the server sends a line beginning with "MESSAGE" then all
  * characters following this string should be displayed in its message area.
+ *
+ * @author mina2
  */
 public class ClientTCP {
 
@@ -64,7 +71,7 @@ public class ClientTCP {
         Object[] inputFields = { // Fields to display (user insert values)
             "Surnom :", surnomField,
             "Machine :", machineField,
-            "Port :", portField
+            "Port (Use Port 5000):", portField
         };
 
         int option = JOptionPane.showConfirmDialog(//open confirm modal
@@ -94,7 +101,21 @@ public class ClientTCP {
                 try {
                     run();
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    String errorMsgDisplay = ex.toString().contains("HostException")
+                            ? "Machine Is Unavailable"
+                            : (ex.toString().contains("ConnectException") ? "Port Is Unavailable" : "Machine / Port Is Unavailable");
+                    int erroMsgRes = JOptionPane.showConfirmDialog(frame,
+                            errorMsgDisplay,
+                            "Error",
+                            JOptionPane.DEFAULT_OPTION,
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    if (erroMsgRes == 0) { //when user clicks on "ok" (error msg) --> redisplay panel to enter new information
+                        getUserInfo();
+                    } else {
+                        frame.setVisible(false);
+                        frame.dispose();
+                    }
                 }
             }
         } else {//if user clicks on cancel
@@ -104,7 +125,7 @@ public class ClientTCP {
 
     private void run() throws IOException {
         try {
-            //port: 59001
+            //port: 5000
             Socket socket = new Socket(machine, Integer.parseInt(port));
             in = new Scanner(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);//true for auto flush
@@ -118,13 +139,13 @@ public class ClientTCP {
                 } else if (line.startsWith("NAMEACCEPTED")) {//change title of the panel with the user name
                     this.frame.setTitle("Chatter - " + line.substring(13)); //13 bcz length of NAMEACCEPTED
                     textField.setEditable(true);
-                } else if (line.startsWith("MESSAGE")) {//add user msg to the panel
+                } else if (line.startsWith("MESSAGE") && !line.substring(8).equals("")) {//add user msg to the panel
                     messageArea.append(line.substring(8) + "\n");//8 bcz length of MESSAGE
                 }
             }
         } finally {
-            frame.setVisible(false);
-            frame.dispose();
+//            frame.setVisible(false);
+//            frame.dispose();
         }
     }
 
