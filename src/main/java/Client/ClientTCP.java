@@ -101,6 +101,7 @@ public class ClientTCP {
                 try {
                     run();
                 } catch (IOException ex) {
+                    frame.setVisible(true);
                     String errorMsgDisplay = ex.toString().contains("HostException")
                             ? "Machine Is Unavailable"
                             : (ex.toString().contains("ConnectException") ? "Port Is Unavailable" : "Machine / Port Is Unavailable");
@@ -112,9 +113,6 @@ public class ClientTCP {
                     );
                     if (erroMsgRes == 0) { //when user clicks on "ok" (error msg) --> redisplay panel to enter new information
                         getUserInfo();
-                    } else {
-                        frame.setVisible(false);
-                        frame.dispose();
                     }
                 }
             }
@@ -144,8 +142,8 @@ public class ClientTCP {
                 }
             }
         } finally {
-//            frame.setVisible(false);
-//            frame.dispose();
+            frame.setVisible(false);
+            frame.dispose();
         }
     }
 
