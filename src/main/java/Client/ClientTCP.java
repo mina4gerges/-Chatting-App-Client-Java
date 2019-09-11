@@ -147,6 +147,16 @@ public class ClientTCP {
                     textField.setEditable(true);
                 } else if (line.startsWith("MESSAGE") && !line.substring(8).equals("")) {//add user msg to the panel
                     messageArea.append(line.substring(8) + "\n");//8 bcz length of MESSAGE
+                } else if (line.startsWith("ERROR") && !line.substring(6).equals("")) {//add user msg to the panel
+                    int erroMsgRes = JOptionPane.showConfirmDialog(frame,
+                            line.substring(6),
+                            "Error",
+                            JOptionPane.DEFAULT_OPTION,
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                    if (erroMsgRes == 0) { //when user clicks on "ok" (error msg) --> redisplay panel to enter new information
+                        getUserInfo();
+                    }
                 }
             }
         } finally {
