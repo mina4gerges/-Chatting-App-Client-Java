@@ -37,6 +37,7 @@ public class ClientTCP {
     JFrame frame = new JFrame("Chatter");
     JTextField textField = new JTextField(50);
     JTextArea messageArea = new JTextArea(16, 50);
+    Socket socket;
 
     String machine;
     String surnom;
@@ -101,10 +102,16 @@ public class ClientTCP {
                 try {
                     run();
                 } catch (IOException ex) {
+                    String errorMsgDisplay = "";
                     frame.setVisible(true);
-                    String errorMsgDisplay = ex.toString().contains("HostException")
-                            ? "Machine Is Unavailable"
-                            : (ex.toString().contains("ConnectException") ? "Port Is Unavailable" : "Machine / Port Is Unavailable");
+                    if (socket == null) {
+                        errorMsgDisplay = "Server Is Not Connected";
+                    } else {
+                        errorMsgDisplay = ex.toString().contains("HostException")
+                                ? "Machine Is Unavailable"
+                                : (ex.toString().contains("ConnectException") ? "Port Is Unavailable" : "Machine / Port Is Unavailable");
+                    }
+
                     int erroMsgRes = JOptionPane.showConfirmDialog(frame,
                             errorMsgDisplay,
                             "Error",
@@ -125,6 +132,7 @@ public class ClientTCP {
         try {
             //port: 5000
             Socket socket = new Socket(machine, Integer.parseInt(port));
+            this.socket = socket;
             in = new Scanner(socket.getInputStream());
             out = new PrintWriter(socket.getOutputStream(), true);//true for auto flush
 
